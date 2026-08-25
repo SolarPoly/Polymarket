@@ -34,6 +34,7 @@ from .config import Settings
 from .demo import DEMO_WALLET, demo_book, demo_markets
 from .errors import ClobError, ConfigError, MarketDataError
 from .market import GammaMarketScanner
+from .scanner import MarketScan, rank_by_opportunity, scan_markets
 
 logger = logging.getLogger(__name__)
 
@@ -232,6 +233,73 @@ def create_app() -> FastAPI:
                     payload["trades_error"] = str(exc)
 
         return payload
+
+    # ------------------------------------------------------------------ scan
+
+    def _serialize_scan(scan: MarketScan) -> dict[str, Any]:
+        best = scan.best_opportunity
+        return {
+            "question": scan.question,
+            "event": scan.event,
+            "yes_token": scan.yes_token,
+            "no_token": scan.no_token,
+            "touch_sum": scan.touch_sum,
+            "touch_edge": scan.touch_edge,
+            "total_depth": scan.total_depth,
+            "tradable": scan.tradable,
+            "error": scan.error,
+            "yes_spread_bps": scan.yes.spread_bps if scan.yes else None,
+            "no_spread_bps": scan.no.spread_bps if scan.no else None,
+            "opportunity": (
+                {
+                    "kind": best.kind,
+                    "size": best.size,
+                    "yes_price": best.yes_price,
+                    "no_price": best.no_price,
+                    "profit_per_set": best.profit_per_set,
+                    "total_profit": best.total_profit,
+                    "edge_bps": best.edge_bps,
+                }
+                if best
+                else None
+            ),
+        }
+
+    @app.get("/api/scan")
+    def scan(
+        limit: int = Query(default=10, ge=1, le=50),
+        size: float = Query(default=100, gt=0, le=1_000_000),
+    ) -> dict[str, Any]:
+        """Balaie les marchés actifs et classe les écarts exploitables.
+
+        L'écart est calculé au volume `size`, en traversant réellement les deux
+        carnets : un écart visible au meilleur prix mais sans profondeur n'est
+        pas retourné.
+        """
+        if _demo_enabled():
+            raw = demo_markets(limit)
+            fetch = demo_book
+            tokens_of = GammaMarketScanner.get_market_tokens
+        else:
+            settings = get_settings()
+            engine = get_engine()
+            try:
+                with GammaMarketScanner(settings.gamma_host, settings.request_timeout) as gamma:
+                    raw = gamma.get_active_markets(limit=limit)
+                    tokens_of = gamma.get_market_tokens
+            except MarketDataError as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+            fetch = engine.get_order_book
+
+        scans = rank_by_opportunity(scan_markets(fetch, raw, tokens_of, size=size))
+        rows = [_serialize_scan(item) for item in scans]
+        return {
+            "demo": _demo_enabled(),
+            "size": size,
+            "count": len(rows),
+            "with_opportunity": sum(1 for r in rows if r["opportunity"]),
+            "markets": rows,
+        }
 
     # -------------------------------------------------------------- front
 

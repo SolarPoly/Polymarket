@@ -10,6 +10,7 @@ Sous-commandes :
     markets   marchés actifs via l'API Gamma
     book      analyse du carnet d'ordres d'un token
     builder   statut d'attribution builder et trades associés
+    scan      balaie les marches et classe les ecarts d'arbitrage
     creds     dérive les credentials L2 depuis la clé privée
     serve     lance l'interface web (écoute locale par défaut)
 """
@@ -30,6 +31,7 @@ from src.client import PolymarketEngine
 from src.config import Settings
 from src.errors import ClobError, ConfigError, MarketDataError, PolyTradeError
 from src.market import GammaMarketScanner
+from src.scanner import rank_by_opportunity, scan_markets
 
 logger = logging.getLogger("polytrade")
 
@@ -74,6 +76,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p_book.add_argument("token_id", help="identifiant CLOB du token (YES ou NO)")
     p_book.add_argument(
         "--size", type=float, default=0, help="simule le slippage pour cette taille"
+    )
+
+    p_scan = sub.add_parser("scan", help="balaie les marches et classe les ecarts d'arbitrage")
+    p_scan.add_argument("--limit", type=int, default=10, help="marches a balayer (defaut : 10)")
+    p_scan.add_argument(
+        "--size", type=float, default=100, help="volume vise pour le calcul (defaut : 100)"
+    )
+    p_scan.add_argument(
+        "--only-opportunities", action="store_true", help="masque les marches sans ecart"
     )
 
     p_builder = sub.add_parser("builder", help="statut builder et trades attribués")
@@ -236,6 +247,81 @@ def cmd_book(engine: PolymarketEngine, token_id: str, size: float, as_json: bool
     return EXIT_OK
 
 
+def cmd_scan(
+    settings: Settings,
+    engine: PolymarketEngine,
+    limit: int,
+    size: float,
+    only_opportunities: bool,
+    as_json: bool,
+) -> int:
+    """Balaie les marches et classe les ecarts d'arbitrage exploitables."""
+    with GammaMarketScanner(settings.gamma_host, settings.request_timeout) as gamma:
+        markets = gamma.get_active_markets(limit=limit)
+        tokens_of = gamma.get_market_tokens
+
+    scans = rank_by_opportunity(scan_markets(engine.get_order_book, markets, tokens_of, size=size))
+
+    if as_json:
+        print(
+            json.dumps(
+                [
+                    {
+                        "question": s.question,
+                        "touch_sum": s.touch_sum,
+                        "tradable": s.tradable,
+                        "error": s.error,
+                        "opportunity": (
+                            {
+                                "kind": s.best_opportunity.kind,
+                                "profit_per_set": s.best_opportunity.profit_per_set,
+                                "total_profit": s.best_opportunity.total_profit,
+                            }
+                            if s.best_opportunity
+                            else None
+                        ),
+                    }
+                    for s in scans
+                ],
+                indent=2,
+                ensure_ascii=False,
+            )
+        )
+        return EXIT_OK
+
+    found = [s for s in scans if s.best_opportunity]
+    print()
+    print(f"{len(scans)} marché(s) balayé(s), {len(found)} avec un écart au volume {size:,.0f}")
+    print()
+
+    for scan in scans:
+        best = scan.best_opportunity
+        if only_opportunities and not best:
+            continue
+        if scan.error:
+            print(f"  [!] {scan.question} — {scan.error}")
+            continue
+
+        somme = f"{scan.touch_sum:.4f}" if scan.touch_sum is not None else "—"
+        marque = "***" if best else "   "
+        print(f"{marque} {scan.question}")
+        print(f"      somme des midpoints : {somme}   profondeur : {scan.total_depth:,.0f}")
+        if best:
+            print(
+                f"      ECART {best.kind} : {best.profit_per_set:.4f} USDC/ensemble "
+                f"({best.edge_bps:.0f} bps) -> {best.total_profit:,.2f} USDC sur {best.size:,.0f}"
+            )
+            print(f"      prix moyens : YES {best.yes_price:.4f} / NO {best.no_price:.4f}")
+
+    if found:
+        print()
+        print(
+            "Rappel : les frais ne sont pas modélisés. Un écart affiché est un "
+            "plafond, pas un gain net."
+        )
+    return EXIT_OK
+
+
 def cmd_builder(settings: Settings, engine: PolymarketEngine, trades: bool, as_json: bool) -> int:
     active = engine.builder_enabled
     payload: dict[str, object] = {
@@ -346,6 +432,10 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_markets(settings, engine, args.limit, args.json)
         if args.command == "book":
             return cmd_book(engine, args.token_id, args.size, args.json)
+        if args.command == "scan":
+            return cmd_scan(
+                settings, engine, args.limit, args.size, args.only_opportunities, args.json
+            )
         if args.command == "builder":
             return cmd_builder(settings, engine, args.trades, args.json)
         if args.command == "creds":
