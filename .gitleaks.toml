@@ -1,0 +1,47 @@
+# Configuration gitleaks — étend les règles par défaut.
+#
+# Motivation : les règles génériques ne détectent PAS une clé privée EVM nue
+# (64 caractères hexadécimaux sans préfixe ni en-tête PEM). C'est exactement
+# la forme du secret qui a fuité le 24/08/2026. Les règles ci-dessous la
+# rattrapent.
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "evm-private-key-assignment"
+description = "Clé privée EVM (64 hex) affectée à une variable"
+regex = '''(?i)(private_?key|privkey|secret_?key|POLYGON_PRIVATE_KEY|WALLET_KEY|MNEMONIC_KEY)\s*[:=]\s*['"]?(0x)?[0-9a-f]{64}['"]?'''
+keywords = ["private_key", "privkey", "secret_key", "polygon_private_key", "wallet_key"]
+entropy = 3.0
+
+[[rules]]
+id = "evm-private-key-bare"
+description = "Chaîne 64-hex isolée ressemblant à une clé privée EVM"
+regex = '''(?i)\b(0x)?[0-9a-f]{64}\b'''
+keywords = []
+entropy = 3.5
+path = '''(?i)(\.env.*|.*\.(ya?ml|json|toml|ini|cfg|sh|ps1|py|js|ts))$'''
+
+[[rules]]
+id = "bip39-mnemonic"
+description = "Phrase mnémonique BIP-39 (12 ou 24 mots)"
+regex = '''(?i)\b([a-z]{3,8}\s+){11,23}[a-z]{3,8}\b'''
+keywords = ["mnemonic", "seed phrase", "seed_phrase", "recovery phrase"]
+
+[allowlist]
+description = "Faux positifs connus"
+paths = [
+  '''\.gitleaks\.toml$''',          # les regex elles-mêmes
+  '''\.env\.example$''',            # ne contient que des placeholders
+  '''(^|/)SECURITY\.md$''',         # documente les motifs
+  '''(^|/)README\.md$''',
+  '''(^|/)tests?/''',               # fixtures de test déterministes
+  '''\.lock$''',
+  '''(^|/)\.venv.*/''',
+]
+regexes = [
+  '''0{40,}''',                     # adresses/hash nuls
+  '''(?i)(deadbeef|cafebabe|1234567890abcdef)''',
+  '''(?i)0x[0-9a-f]{64}.*(placeholder|example|dummy|remplace|votre_cle)''',
+]

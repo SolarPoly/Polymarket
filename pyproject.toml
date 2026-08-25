@@ -1,0 +1,42 @@
+[project]
+name = "polytrade-engine"
+version = "1.0.0"
+description = "Moteur de lecture et de trading Polymarket (CLOB + Gamma)"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+  "E", "W",   # pycodestyle
+  "F",        # pyflakes
+  "I",        # isort
+  "B",        # bugbear
+  "S",        # bandit — règles de sécurité
+  "UP",       # pyupgrade
+  "C4",       # comprehensions
+  "RET",      # returns
+  "SIM",      # simplifications
+  "TID",      # imports
+]
+ignore = [
+  "E501",     # longueur gérée par le formateur
+  "B008",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Les tests ont légitimement besoin d'assert et de secrets factices.
+"tests/*" = ["S101", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
