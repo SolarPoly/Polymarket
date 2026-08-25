@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PolyTrade Engine</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <h1>PolyTrade&nbsp;Engine</h1>
+      </div>
+      <div class="status-strip" id="status-strip">
+        <span class="chip chip--loading" id="chip-clob">CLOB&nbsp;…</span>
+        <span class="chip" id="chip-trading">Trading&nbsp;…</span>
+        <span class="chip" id="chip-builder">Builder&nbsp;…</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Bandeau d'erreur global : visible seulement en cas de panne réelle. -->
+      <div class="banner" id="banner" hidden>
+        <strong id="banner-title"></strong>
+        <p id="banner-body"></p>
+      </div>
+
+      <section class="panel" id="panel-status">
+        <div class="panel-head">
+          <h2>État du moteur</h2>
+          <button class="btn btn--ghost" id="btn-refresh" type="button">Rafraîchir</button>
+        </div>
+        <dl class="grid" id="status-grid">
+          <div class="cell"><dt>Wallet</dt><dd id="v-wallet" class="mono">—</dd></div>
+          <div class="cell"><dt>Chaîne</dt><dd id="v-chain">—</dd></div>
+          <div class="cell"><dt>CLOB</dt><dd id="v-clob">—</dd></div>
+          <div class="cell"><dt>Trading</dt><dd id="v-trading">—</dd></div>
+          <div class="cell"><dt>Builder</dt><dd id="v-builder">—</dd></div>
+          <div class="cell"><dt>Creds L2</dt><dd id="v-creds">—</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Marchés actifs</h2>
+          <div class="controls">
+            <label for="limit">Nombre</label>
+            <input id="limit" type="number" min="1" max="100" value="10" />
+            <button class="btn" id="btn-markets" type="button">Charger</button>
+          </div>
+        </div>
+        <div id="markets-state" class="state">Clique sur « Charger » pour interroger l'API Gamma.</div>
+        <div class="table-wrap">
+          <table id="markets-table" hidden>
+            <thead>
+              <tr>
+                <th>Marché</th>
+                <th class="num">Volume 24 h</th>
+                <th>Tokens</th>
+              </tr>
+            </thead>
+            <tbody id="markets-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Analyse de carnet</h2>
+          <div class="controls">
+            <input id="token" type="text" placeholder="identifiant du token CLOB" />
+            <input id="size" type="number" min="0" step="10" value="0" title="taille simulée" />
+            <button class="btn" id="btn-book" type="button">Analyser</button>
+          </div>
+        </div>
+        <div id="book-state" class="state">
+          Renseigne un identifiant de token, ou clique sur un token dans la liste des marchés.
+        </div>
+
+        <div id="book-result" hidden>
+          <div class="metrics">
+            <div class="metric"><span class="label">Bid</span><span class="value" id="m-bid">—</span></div>
+            <div class="metric"><span class="label">Ask</span><span class="value" id="m-ask">—</span></div>
+            <div class="metric"><span class="label">Midpoint</span><span class="value" id="m-mid">—</span></div>
+            <div class="metric"><span class="label">Spread</span><span class="value" id="m-spread">—</span></div>
+            <div class="metric"><span class="label">Spread (bps)</span><span class="value" id="m-bps">—</span></div>
+            <div class="metric"><span class="label">Liquidité</span><span class="value" id="m-liquid">—</span></div>
+          </div>
+
+          <!-- Barre de déséquilibre : part de la liquidité côté achat vs vente. -->
+          <div class="imbalance" id="imbalance-wrap">
+            <div class="imbalance-head">
+              <span>Profondeur bid <b id="m-biddepth">—</b></span>
+              <span>Déséquilibre <b id="m-imb">—</b></span>
+              <span>Ask <b id="m-askdepth">—</b></span>
+            </div>
+            <div class="bar" role="img" aria-label="Répartition de la liquidité">
+              <div class="bar-bid" id="bar-bid"></div>
+              <div class="bar-ask" id="bar-ask"></div>
+            </div>
+          </div>
+
+          <div class="sim" id="sim" hidden>
+            <h3>Simulation d'achat</h3>
+            <p id="sim-body"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Attribution builder</h2>
+          <button class="btn btn--ghost" id="btn-builder" type="button">Vérifier</button>
+        </div>
+        <div id="builder-state" class="state">Statut non vérifié.</div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Interface en <strong>lecture seule</strong> — aucune route ne place d'ordre. Serveur
+        destiné à une écoute locale : il donne accès à un wallet capable de signer.
+      </p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

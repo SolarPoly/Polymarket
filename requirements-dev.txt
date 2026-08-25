@@ -1,8 +1,16 @@
+# Outils de développement. Installation :  pip install -r requirements-dev.txt
 -r requirements.txt
 
+# --- Tests -----------------------------------------------------------------
+pytest==9.1.1
+responses==0.25.3       # simulation des réponses HTTP de requests
+httpx==0.28.1           # requis par fastapi.testclient.TestClient
+
+# --- Qualité ---------------------------------------------------------------
 ruff==0.8.4
 mypy==1.14.0
 types-requests==2.33.0.20260712
-pre-commit==4.0.1
-pip-audit==2.7.3
-responses==0.25.3
+
+# --- Sécurité --------------------------------------------------------------
+pre-commit==4.0.1       # hooks locaux : gitleaks, detect-private-key
+pip-audit==2.7.3        # vulnérabilités connues des dépendances

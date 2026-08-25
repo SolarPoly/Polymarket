@@ -1,7 +1,14 @@
-# Direct dependencies (versions from the committed .venv)
-py-clob-client==0.34.6
-python-dotenv==1.2.3
+# Dépendances d'exécution. Versions épinglées : une mise à jour doit être
+# un changement délibéré et visible en revue, pas une dérive silencieuse.
+# Les outils de développement sont dans requirements-dev.txt.
 
-# Dev
-pytest==9.1.1
+# --- Polymarket ------------------------------------------------------------
+py-clob-client==0.34.6
+
+# --- Configuration et HTTP -------------------------------------------------
+python-dotenv==1.2.3
 requests==2.34.2
+
+# --- Interface web ---------------------------------------------------------
+fastapi==0.118.0
+uvicorn[standard]==0.37.0

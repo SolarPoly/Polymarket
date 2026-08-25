@@ -11,6 +11,7 @@ Sous-commandes :
     book      analyse du carnet d'ordres d'un token
     builder   statut d'attribution builder et trades associés
     creds     dérive les credentials L2 depuis la clé privée
+    serve     lance l'interface web (écoute locale par défaut)
 """
 
 from __future__ import annotations
@@ -78,6 +79,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p_builder.add_argument("--trades", action="store_true", help="liste les trades attribués")
 
     sub.add_parser("creds", help="dérive les credentials L2 (affiche la clé, pas les secrets)")
+
+    p_serve = sub.add_parser("serve", help="lance l'interface web (lecture seule)")
+    p_serve.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="interface d'écoute (défaut : 127.0.0.1, local uniquement)",
+    )
+    p_serve.add_argument("--port", type=int, default=8000, help="port (défaut : 8000)")
+    p_serve.add_argument("--reload", action="store_true", help="rechargement à chaud (dev)")
 
     args = parser.parse_args(argv)
     if args.command is None:
@@ -269,6 +279,32 @@ def cmd_creds(engine: PolymarketEngine, as_json: bool) -> int:
     return EXIT_OK
 
 
+def cmd_serve(host: str, port: int, reload: bool) -> int:
+    """Lance le serveur web.
+
+    Écoute sur 127.0.0.1 par défaut : le serveur donne accès à un wallet
+    capable de signer, il ne doit pas être exposé sans authentification.
+    """
+    try:
+        import uvicorn
+    except ImportError:
+        logger.error(
+            "uvicorn est absent. Installe les dépendances web : " "pip install -r requirements.txt"
+        )
+        return EXIT_CONFIG
+
+    if host not in {"127.0.0.1", "localhost", "::1"}:
+        logger.warning(
+            "Écoute sur %s : ce serveur expose un wallet capable de signer et "
+            "n'a aucune authentification. Ne l'ouvre pas sur un réseau non fiable.",
+            host,
+        )
+
+    print(f"Interface disponible sur http://{host}:{port}")
+    uvicorn.run("src.api:app", host=host, port=port, reload=reload, log_level="info")
+    return EXIT_OK
+
+
 # --------------------------------------------------------------------- point d'entrée
 
 
@@ -276,6 +312,11 @@ def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     _setup_logging(args.verbose)
     load_dotenv()
+
+    # `serve` est traité avant la construction du moteur : l'API l'instancie
+    # elle-même à la première requête, et le mode --reload réimporte le module.
+    if args.command == "serve":
+        return cmd_serve(args.host, args.port, args.reload)
 
     try:
         settings, engine = _load()
