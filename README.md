@@ -70,6 +70,7 @@ python main.py book <token_id> --size 500   # + simulation de slippage
 python main.py builder                  # statut d'attribution builder
 python main.py builder --trades         # trades attribués
 python main.py creds                    # dérive les credentials L2
+python main.py serve                    # interface web sur 127.0.0.1:8000
 ```
 
 Options globales : `--json` (sortie machine), `-v` (logs de debug).
@@ -112,6 +113,25 @@ La validation des paramètres est appliquée **avant** le coupe-circuit : un
 prix hors de `]0, 1[` ou une taille négative est rejeté dans tous les cas,
 avant toute signature.
 
+## Interface web
+
+```bash
+python main.py serve          # http://127.0.0.1:8000
+```
+
+Un front sans dependance ni etape de build : etat du moteur, marches actifs,
+analyse de carnet avec barre de desequilibre et simulation de slippage,
+statut builder. Un clic sur un token YES/NO d'un marche l'envoie directement
+au panneau d'analyse.
+
+L'ecoute est sur `127.0.0.1` par defaut, et c'est deliberé : le serveur donne
+acces a un wallet capable de signer et n'a aucune authentification. Ouvrir
+`--host 0.0.0.0` declenche un avertissement explicite.
+
+L'interface ne fabrique jamais de donnee. Quand l'API renvoie une erreur, elle
+affiche la cause exacte plutot qu'un tableau vide qui ressemblerait a « pas de
+liquidite ». C'est le pendant cote front du choix fait dans `market.py`.
+
 ## Programme builder
 
 L'attribution builder est entièrement implémentée côté code. Vérifie ton
@@ -123,7 +143,8 @@ python main.py builder
 
 Les credentials sont délivrés par Polymarket après candidature — ils ne se
 génèrent pas localement. La procédure, les points de contact et le piège de
-`BUILDER_CODE` sont détaillés dans [docs/BUILDER.md](docs/BUILDER.md).
+`BUILDER_CODE` sont détaillés dans [docs/BUILDER.md](docs/BUILDER.md) ; une
+trame de candidature est dans [docs/CANDIDATURE.md](docs/CANDIDATURE.md).
 
 ## Développement
 
@@ -131,7 +152,7 @@ génèrent pas localement. La procédure, les points de contact et le piège de
 pip install -r requirements-dev.txt
 pre-commit install     # installe les hooks — indispensable, voir SECURITY.md
 
-pytest                 # 120 tests
+pytest                 # 143 tests
 ruff check .
 ruff format .
 mypy src main.py
@@ -150,8 +171,11 @@ src/client.py      client CLOB, coupe-circuit, builder, auth L2
 src/market.py      client Gamma (lecture seule)
 src/analytics.py   analyse de carnet : spread, profondeur, slippage (pur)
 src/errors.py      hierarchie d'exceptions
+src/api.py         API HTTP FastAPI (lecture seule)
+web/               front sans dependance ni etape de build
 tests/             pytest, reseau simule via responses
 docs/BUILDER.md    programme builder Polymarket
+docs/CANDIDATURE.md  trame de candidature au programme builder
 ```
 
 ### Choix de conception

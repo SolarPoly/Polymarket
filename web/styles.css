@@ -1,0 +1,485 @@
+/* PolyTrade Engine — feuille de style unique, sans dépendance externe.
+   Thème clair par défaut, thème sombre suivant la préférence système. */
+
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-alt: #f1f3f6;
+  --border: #e2e5ea;
+  --text: #16181d;
+  --text-dim: #61666f;
+  --accent: #3b5bdb;
+  --accent-soft: #e7ebfd;
+  --ok: #0f7b4f;
+  --ok-soft: #e3f4ec;
+  --warn: #9a5b00;
+  --warn-soft: #fdf0dc;
+  --err: #b3261e;
+  --err-soft: #fdeceb;
+  --bid: #0f7b4f;
+  --ask: #b3261e;
+  --radius: 10px;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101216;
+    --surface: #181b21;
+    --surface-alt: #1f232b;
+    --border: #2b3039;
+    --text: #e8eaed;
+    --text-dim: #9aa1ad;
+    --accent: #8ea4ff;
+    --accent-soft: #232a45;
+    --ok: #4ade80;
+    --ok-soft: #16281f;
+    --warn: #fbbf24;
+    --warn-soft: #2a2213;
+    --err: #f87171;
+    --err-soft: #2b1717;
+    --bid: #4ade80;
+    --ask: #f87171;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------------- barre du haut */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.brand h1 {
+  font-size: 1.05rem;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--accent), var(--bid));
+  flex: none;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.chip--ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border-color: transparent;
+}
+.chip--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border-color: transparent;
+}
+.chip--err {
+  background: var(--err-soft);
+  color: var(--err);
+  border-color: transparent;
+}
+.chip--loading {
+  opacity: 0.6;
+}
+
+/* ------------------------------------------------------------------ structure */
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.9rem;
+}
+
+.panel-head h2 {
+  font-size: 0.95rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.controls label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ------------------------------------------------------------------ contrôles */
+
+input {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 0;
+}
+
+input#limit,
+input#size {
+  width: 5.5rem;
+}
+
+input#token {
+  width: min(22rem, 60vw);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.btn--ghost {
+  background: var(--surface-alt);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ------------------------------------------------------------------ bandeau */
+
+.banner {
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  background: var(--err-soft);
+  border: 1px solid color-mix(in srgb, var(--err) 30%, transparent);
+}
+
+.banner strong {
+  color: var(--err);
+  display: block;
+  font-size: 0.9rem;
+}
+
+.banner p {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------------- état */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.cell {
+  background: var(--surface-alt);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+
+.cell dt {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.cell dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+}
+
+.state {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 0.6rem 0;
+}
+
+.state--err {
+  color: var(--err);
+}
+
+/* ------------------------------------------------------------------- tableau */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.event {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
+}
+
+.token-btn {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  margin: 0 0.25rem 0.25rem 0;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.token-btn:hover {
+  filter: brightness(0.97);
+}
+
+/* -------------------------------------------------------------- métriques */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+}
+
+.metric {
+  background: var(--surface-alt);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.metric .label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+
+.metric .value {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- déséquilibre */
+
+.imbalance-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.imbalance-head b {
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.bar {
+  display: flex;
+  height: 9px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-alt);
+}
+
+.bar-bid {
+  background: var(--bid);
+  transition: width 0.25s ease;
+}
+
+.bar-ask {
+  background: var(--ask);
+  transition: width 0.25s ease;
+}
+
+/* --------------------------------------------------------------- simulation */
+
+.sim {
+  margin-top: 1.1rem;
+  padding: 0.8rem 1rem;
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+
+.sim h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.sim p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-family: var(--mono);
+}
+
+/* -------------------------------------------------------------------- pied */
+
+footer {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1.5rem 2.5rem;
+}
+
+footer p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    padding: 0.85rem 1rem;
+  }
+  main,
+  footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  input#token {
+    width: 100%;
+  }
+  .controls {
+    width: 100%;
+  }
+}
