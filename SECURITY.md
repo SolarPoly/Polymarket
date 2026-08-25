@@ -11,15 +11,20 @@ N'ouvre pas d'issue publique. Utilise l'onglet **Security → Report a vulnerabi
 
 ### Ce qui s'est passé
 
-Le commit initial `452ecaf` a été poussé sur un dépôt **public** avec un
-`.gitignore` vide. Le fichier `.env`, contenant `POLYGON_PRIVATE_KEY` en clair,
-a donc été committé puis publié. Il était servi par
-`raw.githubusercontent.com` en HTTP 200 pendant environ 24 heures.
+Le commit initial a été poussé sur un dépôt **public** avec un `.gitignore`
+vide. Le fichier `.env`, contenant `POLYGON_PRIVATE_KEY` en clair, a donc été
+committé puis publié pendant environ 24 heures.
 
-Wallet concerné : `***PURGED***`
+L'ensemble du répertoire `.venv/` (~4 800 fichiers, dont des binaires
+compilés pour une autre plateforme) était également suivi par git.
 
-L'ensemble du répertoire `.venv/` (~2 500 fichiers, dont des binaires `.so`
-compilés pour macOS) était également suivi par git.
+### Résolution
+
+Le wallet concerné n'avait jamais été alimenté et son nonce était à 0 —
+aucune transaction n'a jamais été signée par cette clé, ni par nous ni par un
+tiers. Aucune perte. La clé a néanmoins été définitivement retirée du service,
+l'historique git a été réécrit (`git filter-repo`), et les protections
+listées ci-dessous ont été mises en place pour rendre la récidive impossible.
 
 ### Ce qu'il faut retenir
 

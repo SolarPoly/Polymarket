@@ -21,9 +21,12 @@ class TestSecretMasking:
     """La clé privée ne doit apparaître dans AUCUNE sortie textuelle."""
 
     def test_repr_masque_la_valeur(self):
-        secret = Secret("***PURGED***")
-        assert "ffb4572a" not in repr(secret)
-        assert "ffb4572a" not in str(secret)
+        # Valeur ostensiblement factice : ne jamais utiliser un fragment d'un
+        # secret reel comme donnee de test, meme tronque — il finirait dans
+        # l'historique git et declencherait les scanners.
+        secret = Secret("valeur-de-test-non-sensible")
+        assert "valeur-de-test" not in repr(secret)
+        assert "valeur-de-test" not in str(secret)
         assert "***" in repr(secret)
 
     def test_repr_des_settings_ne_fuit_pas(self, settings):
