@@ -1,0 +1,36 @@
+# Jamais dans une image : un secret copie dans une couche y reste, meme si une
+# couche ulterieure le supprime.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# Environnements virtuels : specifiques a l'hote, inutiles et volumineux.
+.venv/
+.venv-*/
+venv/
+
+# Historique git et outillage
+.git/
+.github/
+.gitignore
+.gitattributes
+.gitleaks.toml
+.pre-commit-config.yaml
+
+# Tests et caches
+tests/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+__pycache__/
+*.py[cod]
+
+# Documentation et scripts d'installation hote
+docs/
+*.md
+install.ps1
+install.sh

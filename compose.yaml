@@ -1,0 +1,23 @@
+# Lancement en une commande :
+#
+#   docker compose up --build
+#
+# puis http://127.0.0.1:8000
+
+services:
+  polytrade:
+    build: .
+    # Publication sur 127.0.0.1 uniquement : ce service n'a aucune
+    # authentification et peut detenir une cle capable de signer. Ne passe pas
+    # en 0.0.0.0 sans placer un reverse proxy authentifie devant.
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Mode demonstration par defaut : demarre sans cle privee.
+      # Passe a "false" et renseigne .env pour les donnees reelles.
+      POLY_DEMO_MODE: "true"
+    # Decommente pour fournir la configuration reelle. Monte en lecture seule :
+    # le conteneur n'a aucune raison d'ecrire dans ton .env.
+    # volumes:
+    #   - ./.env:/app/.env:ro
+    restart: unless-stopped

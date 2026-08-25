@@ -1,15 +1,45 @@
 # PolyTrade Engine
 
-Moteur Python de lecture et de trading sur [Polymarket](https://polymarket.com) :
-API Gamma pour la découverte des marchés, CLOB pour le carnet d'ordres et
-l'exécution.
+Moteur Python de lecture et d'analyse pour [Polymarket](https://polymarket.com) :
+decouverte des marches via l'API Gamma, carnet d'ordres via le CLOB, detection
+d'ecarts d'arbitrage, et interface web.
 
-> **Le trading est désactivé par défaut.** Aucun ordre ne peut partir sans
+> **Le trading est desactive par defaut.** Aucun ordre ne peut partir sans
 > `POLY_ENABLE_TRADING=true` explicite. Voir [Coupe-circuit](#coupe-circuit).
 
----
+## Demarrage rapide
 
-## Installation
+Aucune cle privee n'est necessaire pour voir l'interface : le mode
+demonstration fonctionne sans configuration.
+
+**Windows**
+
+```powershell
+.\install.ps1
+.\.venv\Scripts\python.exe main.py serve --demo
+```
+
+**Linux / macOS**
+
+```bash
+./install.sh
+.venv/bin/python main.py serve --demo
+```
+
+**Docker** (aucun Python a installer)
+
+```bash
+docker compose up --build
+```
+
+Puis ouvrir <http://127.0.0.1:8000>.
+
+Le script d'installation verifie la version de Python, cree l'environnement
+virtuel, installe les dependances et prepare le `.env`. Il est rejouable, et
+remplace un environnement virtuel cree sur un autre systeme d'exploitation
+plutot que d'echouer dessus.
+
+## Installation manuelle
 
 Python 3.12 ou 3.13 requis.
 
