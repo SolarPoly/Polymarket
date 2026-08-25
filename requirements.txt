@@ -1,0 +1,7 @@
+# Direct dependencies (versions from the committed .venv)
+py-clob-client==0.34.6
+python-dotenv==1.2.3
+
+# Dev
+pytest==9.1.1
+requests==2.34.2

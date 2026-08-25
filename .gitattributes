@@ -1,0 +1,28 @@
+# Normalise les fins de ligne dans le dépôt (LF), quelle que soit la
+# plateforme du contributeur. Sans ça, un aller-retour Windows/macOS produit
+# des diffs entiers sur des fichiers dont une seule ligne a changé — ce projet
+# a déjà mélangé les deux (un venv macOS committé depuis une machine Windows).
+* text=auto eol=lf
+
+# Scripts Windows : doivent conserver CRLF pour rester exécutables.
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binaires : jamais de conversion.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.so binary
+*.dylib binary
+*.dll binary
+*.pyd binary
+*.whl binary
+
+# Exclut le bruit des statistiques de langage GitHub.
+tests/** linguist-path
+docs/** linguist-documentation
