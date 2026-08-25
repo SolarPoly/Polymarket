@@ -3,7 +3,7 @@
 
 # --- Tests -----------------------------------------------------------------
 pytest==9.1.1
-responses==0.25.3       # simulation des réponses HTTP de requests
+responses==0.26.2       # simulation des réponses HTTP de requests
 httpx==0.28.1           # requis par fastapi.testclient.TestClient
 
 # --- Qualité ---------------------------------------------------------------
