@@ -101,7 +101,7 @@ class GammaMarketScanner:
             # ConnectionError, pas une sous-classe : sans ce handler explicite
             # elle s'échapperait de la fonction.
             raise MarketDataError(
-                f"L'API Gamma a échoué de façon répétée sur {url} " "(retries épuisés sur 429/5xx)."
+                f"L'API Gamma a échoué de façon répétée sur {url} (retries épuisés sur 429/5xx)."
             ) from exc
         except requests.exceptions.HTTPError as exc:
             code = exc.response.status_code if exc.response is not None else "?"

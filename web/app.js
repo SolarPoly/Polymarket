@@ -85,6 +85,10 @@ async function loadStatus() {
   try {
     const data = await api("/api/status");
 
+    // Le bandeau demo reste affiche tant que le mode est actif : ce n'est pas
+    // une notification que l'on chasse, c'est un etat.
+    $("demo-banner").hidden = data.demo !== true;
+
     $("v-wallet").textContent = data.wallet || dash;
     $("v-chain").textContent = data.chain_id ?? dash;
     $("v-clob").textContent = data.clob_reachable ? "joignable" : "injoignable";
@@ -101,7 +105,10 @@ async function loadStatus() {
     setChip($("chip-builder"), data.builder_active ? "Builder actif" : "Builder inactif",
       data.builder_active ? "ok" : null);
 
-    if (!data.clob_reachable) {
+    if (data.demo) {
+      // En demo, le CLOB est simule joignable : pas de bandeau d'erreur.
+      hideBanner();
+    } else if (!data.clob_reachable) {
       showBanner(
         "Polymarket injoignable depuis ce réseau",
         "Le CLOB ne répond pas. Si la résolution DNS renvoie une IP hors de " +

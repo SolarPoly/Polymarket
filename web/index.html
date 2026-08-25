@@ -20,6 +20,16 @@
     </header>
 
     <main>
+      <!-- Bandeau demo : permanent tant que le mode demo est actif. On ne
+           doit jamais pouvoir confondre une donnee simulee avec une reelle. -->
+      <div class="demo-banner" id="demo-banner" hidden>
+        <strong>Mode demonstration</strong>
+        <span>
+          Les prix, volumes et carnets affiches sont simules et figes. Aucune
+          donnee ne vient de Polymarket, aucun wallet n'est utilise.
+        </span>
+      </div>
+
       <!-- Bandeau d'erreur global : visible seulement en cas de panne réelle. -->
       <div class="banner" id="banner" hidden>
         <strong id="banner-title"></strong>

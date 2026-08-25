@@ -3,14 +3,15 @@
 
 # --- Tests -----------------------------------------------------------------
 pytest==9.1.1
-responses==0.25.3       # simulation des réponses HTTP de requests
+pytest-cov==7.1.0       # couverture ; seuil de 90 % applique en CI
+responses==0.26.2       # simulation des réponses HTTP de requests
 httpx==0.28.1           # requis par fastapi.testclient.TestClient
 
 # --- Qualité ---------------------------------------------------------------
-ruff==0.8.4
-mypy==1.14.0
+ruff==0.16.4
+mypy==2.3.1
 types-requests==2.33.0.20260712
 
 # --- Sécurité --------------------------------------------------------------
-pre-commit==4.0.1       # hooks locaux : gitleaks, detect-private-key
-pip-audit==2.7.3        # vulnérabilités connues des dépendances
+pre-commit==4.6.2       # hooks locaux : gitleaks, detect-private-key
+pip-audit==2.10.1       # vulnérabilités connues des dépendances

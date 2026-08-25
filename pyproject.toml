@@ -39,4 +39,25 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --strict-markers"
+# --cov-fail-under fige un plancher : une baisse de couverture fait echouer la
+# CI au lieu de passer inapercue dans un diff.
+addopts = "-ra --strict-markers --cov=src --cov=main --cov-report=term-missing --cov-fail-under=90"
+filterwarnings = [
+  "error",
+  # starlette 1.6 pousse httpx2 pour son TestClient ; httpx reste fonctionnel
+  # et fastapi ne l'a pas encore suivi. A retirer quand fastapi migrera.
+  "default::DeprecationWarning",
+  "default:Using `httpx` with `starlette.testclient`:UserWarning",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+]

@@ -18,6 +18,7 @@ Principes :
 from __future__ import annotations
 
 import logging
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -30,12 +31,18 @@ from fastapi.staticfiles import StaticFiles
 from .analytics import analyze_book, parse_levels, slippage
 from .client import PolymarketEngine
 from .config import Settings
+from .demo import DEMO_WALLET, demo_book, demo_markets
 from .errors import ClobError, ConfigError, MarketDataError
 from .market import GammaMarketScanner
 
 logger = logging.getLogger(__name__)
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+
+
+def _demo_enabled() -> bool:
+    """Mode demonstration : opt-in strict, jamais declenche par une panne."""
+    return os.getenv("POLY_DEMO_MODE", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 @lru_cache(maxsize=1)
@@ -67,6 +74,21 @@ def create_app() -> FastAPI:
     @app.get("/api/status")
     def status() -> dict[str, Any]:
         """Configuration, wallet et connectivité réelle du CLOB."""
+        if _demo_enabled():
+            # Aucune cle lue, aucun reseau touche : la demo doit tourner sans
+            # configuration valide.
+            return {
+                "demo": True,
+                "wallet": DEMO_WALLET,
+                "chain_id": 137,
+                "clob_host": "(demonstration)",
+                "clob_reachable": True,
+                "trading_enabled": False,
+                "builder_mode": "non configure",
+                "builder_active": False,
+                "api_creds_configured": False,
+            }
+
         try:
             settings = get_settings()
             engine = get_engine()
@@ -75,6 +97,7 @@ def create_app() -> FastAPI:
 
         reachable = engine.health_check()
         return {
+            "demo": False,
             "wallet": engine.address,
             "chain_id": settings.chain_id,
             "clob_host": settings.clob_host,
@@ -93,6 +116,19 @@ def create_app() -> FastAPI:
 
         Renvoie 503 si Gamma est injoignable — jamais de données factices.
         """
+        if _demo_enabled():
+            raw = demo_markets(limit)
+            rows = [
+                {
+                    "question": m.get("question"),
+                    "event": m.get("event_title"),
+                    "volume_24h": GammaMarketScanner.volume_24h(m),
+                    "tokens": GammaMarketScanner.get_market_tokens(m),
+                }
+                for m in raw
+            ]
+            return {"demo": True, "count": len(rows), "markets": rows}
+
         settings = get_settings()
         try:
             with GammaMarketScanner(settings.gamma_host, settings.request_timeout) as scanner:
@@ -111,21 +147,25 @@ def create_app() -> FastAPI:
         except MarketDataError as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-        return {"count": len(rows), "markets": rows}
+        return {"demo": False, "count": len(rows), "markets": rows}
 
     # ------------------------------------------------------------------ carnet
 
     @app.get("/api/book/{token_id}")
     def book(token_id: str, size: float = Query(default=0, ge=0)) -> dict[str, Any]:
         """Analyse du carnet d'un token, avec simulation d'achat optionnelle."""
-        engine = get_engine()
-        try:
-            raw = engine.get_order_book(token_id)
-        except ClobError as exc:
-            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        if _demo_enabled():
+            raw: Any = demo_book(token_id)
+        else:
+            engine = get_engine()
+            try:
+                raw = engine.get_order_book(token_id)
+            except ClobError as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
 
         analysis = analyze_book(raw)
         payload: dict[str, Any] = {
+            "demo": _demo_enabled(),
             "token_id": token_id,
             "best_bid": analysis.best_bid,
             "best_ask": analysis.best_ask,
@@ -159,11 +199,21 @@ def create_app() -> FastAPI:
     @app.get("/api/builder")
     def builder(trades: bool = False) -> dict[str, Any]:
         """Statut d'attribution builder, et trades associés si demandé."""
+        if _demo_enabled():
+            return {
+                "demo": True,
+                "mode": "non configure",
+                "configured": False,
+                "active": False,
+                "trades_error": "Mode demonstration : aucune attribution reelle.",
+            }
+
         settings = get_settings()
         engine = get_engine()
         active = engine.builder_enabled
 
         payload: dict[str, Any] = {
+            "demo": False,
             "mode": settings.builder.mode,
             "configured": settings.builder.is_configured,
             "active": active,

@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from typing import TypedDict
 
@@ -88,6 +89,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     p_serve.add_argument("--port", type=int, default=8000, help="port (défaut : 8000)")
     p_serve.add_argument("--reload", action="store_true", help="rechargement à chaud (dev)")
+    p_serve.add_argument(
+        "--demo",
+        action="store_true",
+        help="donnees de demonstration, sans reseau ni wallet (etiquetees partout)",
+    )
 
     args = parser.parse_args(argv)
     if args.command is None:
@@ -279,7 +285,7 @@ def cmd_creds(engine: PolymarketEngine, as_json: bool) -> int:
     return EXIT_OK
 
 
-def cmd_serve(host: str, port: int, reload: bool) -> int:
+def cmd_serve(host: str, port: int, reload: bool, demo: bool = False) -> int:
     """Lance le serveur web.
 
     Écoute sur 127.0.0.1 par défaut : le serveur donne accès à un wallet
@@ -289,9 +295,15 @@ def cmd_serve(host: str, port: int, reload: bool) -> int:
         import uvicorn
     except ImportError:
         logger.error(
-            "uvicorn est absent. Installe les dépendances web : " "pip install -r requirements.txt"
+            "uvicorn est absent. Installe les dépendances web : pip install -r requirements.txt"
         )
         return EXIT_CONFIG
+
+    if demo:
+        # Transmis par l'environnement : uvicorn --reload reimporte le module
+        # dans un sous-processus, qui ne verrait pas un argument de fonction.
+        os.environ["POLY_DEMO_MODE"] = "true"
+        print("MODE DEMONSTRATION : donnees simulees, etiquetees dans chaque reponse.")
 
     if host not in {"127.0.0.1", "localhost", "::1"}:
         logger.warning(
@@ -316,7 +328,7 @@ def main(argv: list[str] | None = None) -> int:
     # `serve` est traité avant la construction du moteur : l'API l'instancie
     # elle-même à la première requête, et le mode --reload réimporte le module.
     if args.command == "serve":
-        return cmd_serve(args.host, args.port, args.reload)
+        return cmd_serve(args.host, args.port, args.reload, args.demo)
 
     try:
         settings, engine = _load()

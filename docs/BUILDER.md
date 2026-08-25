@@ -36,8 +36,13 @@ ce qui évite de croire l'attribution active alors qu'elle ne l'est pas.
 Le `.env` d'origine de ce projet contenait :
 
 ```
-BUILDER_CODE=0x8200166e...(tronque)
+BUILDER_CODE=0x8200166e…   (64 caractères hexadécimaux, tronqué ici)
 ```
+
+> La valeur est volontairement tronquée : une chaîne 64-hex complète dans un
+> fichier suivi déclenche la règle `evm-private-key-bare` de
+> [`.gitleaks.toml`](../.gitleaks.toml), et affaiblir cette règle pour laisser
+> passer un exemple de documentation serait un mauvais échange.
 
 Cette variable **n'a jamais rien fait**. Elle était lue par le code puis
 jamais transmise au SDK — et de toute façon, `py_builder_signing_sdk`

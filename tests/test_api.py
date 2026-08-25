@@ -195,7 +195,7 @@ class TestMarkets:
 
     def test_liste_vide_reste_vide(self, client):
         body = client(scanner=FakeScanner([])).get("/api/markets").json()
-        assert body == {"count": 0, "markets": []}
+        assert body == {"demo": False, "count": 0, "markets": []}
 
     @pytest.mark.parametrize("limit", [0, -1, 101, 9999])
     def test_limites_hors_bornes_rejetees(self, client, limit):
@@ -276,6 +276,6 @@ class TestFront:
         routes = api_module.create_app().routes
         for route in routes:
             methods = getattr(route, "methods", set()) or set()
-            assert not (
-                {"POST", "PUT", "PATCH", "DELETE"} & methods
-            ), f"route en écriture inattendue : {getattr(route, 'path', route)}"
+            assert not ({"POST", "PUT", "PATCH", "DELETE"} & methods), (
+                f"route en écriture inattendue : {getattr(route, 'path', route)}"
+            )

@@ -1,6 +1,8 @@
 # Dépendances d'exécution. Versions épinglées : une mise à jour doit être
 # un changement délibéré et visible en revue, pas une dérive silencieuse.
 # Les outils de développement sont dans requirements-dev.txt.
+#
+# `pip-audit --strict` tourne en CI et échoue sur toute vulnérabilité connue.
 
 # --- Polymarket ------------------------------------------------------------
 py-clob-client==0.34.6
@@ -10,5 +12,11 @@ python-dotenv==1.2.3
 requests==2.34.2
 
 # --- Interface web ---------------------------------------------------------
-fastapi==0.118.0
-uvicorn[standard]==0.37.0
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+
+# Épinglé explicitement : fastapi demande seulement `starlette>=0.46.0`, donc
+# pip laisserait volontiers une 0.48.0 en place — version portant 6 CVE
+# (PYSEC-2026-161, -248, -249, -1942, -2280, -2281). Sans cette ligne,
+# l'audit CI échoue.
+starlette==1.6.0

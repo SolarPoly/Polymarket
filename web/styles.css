@@ -483,3 +483,31 @@ footer p {
     width: 100%;
   }
 }
+
+/* ------------------------------------------------------------ bandeau demo */
+/* Volontairement voyant : la confusion entre donnee simulee et donnee reelle
+   est precisement le defaut que ce projet a corrige. */
+
+.demo-banner {
+  border-radius: var(--radius);
+  padding: 0.8rem 1.1rem;
+  background: var(--warn-soft);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  align-items: baseline;
+}
+
+.demo-banner strong {
+  color: var(--warn);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.demo-banner span {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+}

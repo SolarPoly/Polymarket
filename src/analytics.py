@@ -12,14 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Protocol
-
-
-class _Level(Protocol):
-    """Un niveau de carnet : le SDK expose `price` et `size` en chaînes."""
-
-    price: str
-    size: str
+from typing import Any
 
 
 @dataclass(frozen=True)

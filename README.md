@@ -90,8 +90,8 @@ load_dotenv()
 settings = Settings.from_env()
 engine = PolymarketEngine(settings)
 
-print(engine.address)          # wallet signataire
-print(engine.health_check())   # le CLOB répond-il vraiment ?
+print(engine.address)  # wallet signataire
+print(engine.health_check())  # le CLOB répond-il vraiment ?
 
 with GammaMarketScanner(settings.gamma_host) as scanner:
     for market in scanner.get_active_markets(limit=5):
@@ -116,8 +116,26 @@ avant toute signature.
 ## Interface web
 
 ```bash
-python main.py serve          # http://127.0.0.1:8000
+python main.py serve --demo    # http://127.0.0.1:8000 — donnees simulees
+python main.py serve           # donnees reelles (necessite un acces Polymarket)
 ```
+
+### Voir l'interface sans acces a Polymarket
+
+Sur un reseau ou Polymarket est filtre, l'interface reelle s'affiche vide avec
+un bandeau d'erreur : elle fonctionne, mais elle n'a rien a montrer. Le mode
+`--demo` sert un jeu de donnees fige couvrant chaque etat affichable — carnet
+liquide, carnet desequilibre, spread large, carnet vide, profondeur
+insuffisante. Il ne lit aucune cle et ne touche pas le reseau, donc il tourne
+sans configuration.
+
+**Ce n'est pas un retour du fallback supprime.** La difference est entiere :
+le mode demo ne s'active que sur `--demo` (ou `POLY_DEMO_MODE=true`), jamais
+en reaction a une panne ; chaque reponse d'API porte `"demo": true` ; et un
+bandeau permanent s'affiche dans l'interface. L'ancien fallback, lui, se
+declenchait silencieusement sur erreur reseau et etait indistinguable de vraies
+donnees. Trois tests verrouillent cette distinction dans
+[tests/test_demo.py](tests/test_demo.py).
 
 Un front sans dependance ni etape de build : etat du moteur, marches actifs,
 analyse de carnet avec barre de desequilibre et simulation de slippage,
@@ -152,7 +170,7 @@ trame de candidature est dans [docs/CANDIDATURE.md](docs/CANDIDATURE.md).
 pip install -r requirements-dev.txt
 pre-commit install     # installe les hooks — indispensable, voir SECURITY.md
 
-pytest                 # 143 tests
+pytest                 # 199 tests, couverture 96 %
 ruff check .
 ruff format .
 mypy src main.py
@@ -172,6 +190,7 @@ src/market.py      client Gamma (lecture seule)
 src/analytics.py   analyse de carnet : spread, profondeur, slippage (pur)
 src/errors.py      hierarchie d'exceptions
 src/api.py         API HTTP FastAPI (lecture seule)
+src/demo.py        jeu de donnees de demonstration (opt-in, etiquete)
 web/               front sans dependance ni etape de build
 tests/             pytest, reseau simule via responses
 docs/BUILDER.md    programme builder Polymarket
