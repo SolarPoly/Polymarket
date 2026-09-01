@@ -8,7 +8,7 @@ responses==0.26.2       # simulation des réponses HTTP de requests
 httpx==0.28.1           # requis par fastapi.testclient.TestClient
 
 # --- Qualité ---------------------------------------------------------------
-ruff==0.16.4
+ruff==0.16.5
 mypy==2.3.1
 types-requests==2.33.0.20260712
 
