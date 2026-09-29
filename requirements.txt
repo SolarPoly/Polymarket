@@ -13,7 +13,7 @@ requests==2.34.2
 
 # --- Interface web ---------------------------------------------------------
 fastapi==0.141.1
-uvicorn[standard]==0.52.4
+uvicorn[standard]==0.54.0
 
 # Épinglé explicitement : fastapi demande seulement `starlette>=0.46.0`, donc
 # pip laisserait volontiers une 0.48.0 en place — version portant 6 CVE
