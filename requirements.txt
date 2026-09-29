@@ -19,4 +19,4 @@ uvicorn[standard]==0.52.4
 # pip laisserait volontiers une 0.48.0 en place — version portant 6 CVE
 # (PYSEC-2026-161, -248, -249, -1942, -2280, -2281). Sans cette ligne,
 # l'audit CI échoue.
-starlette==1.6.0
+starlette==1.7.0
