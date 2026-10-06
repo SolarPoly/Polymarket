@@ -8,9 +8,9 @@ responses==0.26.2       # simulation des réponses HTTP de requests
 httpx==0.28.1           # requis par fastapi.testclient.TestClient
 
 # --- Qualité ---------------------------------------------------------------
-ruff==0.16.4
-mypy==2.3.1
-types-requests==2.33.0.20260712
+ruff==0.16.10
+mypy==2.4.0
+types-requests==2.33.0.20260906
 
 # --- Sécurité --------------------------------------------------------------
 pre-commit==4.6.2       # hooks locaux : gitleaks, detect-private-key
